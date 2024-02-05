@@ -850,6 +850,7 @@ void Fuzzer::ReadAndExecuteSeedCorpora(std::vector<SizedFile> &CorporaFiles) {
 }
 
 void Fuzzer::Loop(std::vector<SizedFile> &CorporaFiles) {
+  Printf("[CWFuzz][Default] Executing Modified Fuzzer::Loop \n");
   auto FocusFunctionOrAuto = Options.FocusFunction;
   DFT.Init(Options.DataFlowTrace, &FocusFunctionOrAuto, CorporaFiles,
            MD.GetRand());
