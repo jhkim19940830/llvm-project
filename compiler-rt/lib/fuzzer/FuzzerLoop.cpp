@@ -531,29 +531,17 @@ bool Fuzzer::RunOne(const uint8_t *Data, size_t Size, bool MayDeleteFile,
     *FoundUniqFeatures = FoundUniqFeaturesOfII;
   PrintPulseAndReportSlowInput(Data, Size);
   size_t NumNewFeatures = Corpus.NumFeatureUpdates() - NumUpdatesBefore;
-  if (NumNewFeatures || ForceAddToCorpus) {
-    TPC.UpdateObservedPCs();
-    auto NewII =
-        Corpus.AddToCorpus({Data, Data + Size}, NumNewFeatures, MayDeleteFile,
-                           TPC.ObservedFocusFunction(), ForceAddToCorpus,
-                           TimeOfUnit, UniqFeatureSetTmp, DFT, II);
-    WriteFeatureSetToFile(Options.FeaturesDir, Sha1ToString(NewII->Sha1),
-                          NewII->UniqFeatureSet);
-    WriteEdgeToMutationGraphFile(Options.MutationGraphFile, NewII, II,
-                                 MD.MutationSequence());
-    return true;
-  }
-  if (II && FoundUniqFeaturesOfII &&
-      II->DataFlowTraceForFocusFunction.empty() &&
-      FoundUniqFeaturesOfII == II->UniqFeatureSet.size() &&
-      II->U.size() > Size) {
-    auto OldFeaturesFile = Sha1ToString(II->Sha1);
-    Corpus.Replace(II, {Data, Data + Size}, TimeOfUnit);
-    RenameFeatureSetFile(Options.FeaturesDir, OldFeaturesFile,
-                         Sha1ToString(II->Sha1));
-    return true;
-  }
-  return false;
+
+  TPC.UpdateObservedPCs();
+  auto NewII =
+          Corpus.AddToCorpus({Data, Data + Size}, NumNewFeatures, MayDeleteFile,
+                             TPC.ObservedFocusFunction(), ForceAddToCorpus,
+                             TimeOfUnit, UniqFeatureSetTmp, DFT, II);
+  WriteFeatureSetToFile(Options.FeaturesDir, Sha1ToString(NewII->Sha1),
+                        NewII->UniqFeatureSet);
+  WriteEdgeToMutationGraphFile(Options.MutationGraphFile, NewII, II,
+                               MD.MutationSequence());
+  return true;
 }
 
 void Fuzzer::TPCUpdateObservedPCs() { TPC.UpdateObservedPCs(); }
@@ -850,6 +838,7 @@ void Fuzzer::ReadAndExecuteSeedCorpora(std::vector<SizedFile> &CorporaFiles) {
 }
 
 void Fuzzer::Loop(std::vector<SizedFile> &CorporaFiles) {
+  Printf("[CWFuzz][no_coverage] Executing Modified Fuzzer::Loop \n");
   auto FocusFunctionOrAuto = Options.FocusFunction;
   DFT.Init(Options.DataFlowTrace, &FocusFunctionOrAuto, CorporaFiles,
            MD.GetRand());
