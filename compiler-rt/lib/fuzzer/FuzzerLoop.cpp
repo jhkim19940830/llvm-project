@@ -512,36 +512,10 @@ bool Fuzzer::RunOne(const uint8_t *Data, size_t Size, bool MayDeleteFile,
   assert(Size < std::numeric_limits<uint32_t>::max());
 
   ExecuteCallback(Data, Size);
-  auto TimeOfUnit = duration_cast<microseconds>(UnitStopTime - UnitStartTime);
 
   UniqFeatureSetTmp.clear();
-  size_t FoundUniqFeaturesOfII = 0;
-  size_t NumUpdatesBefore = Corpus.NumFeatureUpdates();
-  TPC.CollectFeatures([&](uint32_t Feature) {
-    if (Corpus.AddFeature(Feature, static_cast<uint32_t>(Size), Options.Shrink))
-      UniqFeatureSetTmp.push_back(Feature);
-    if (Options.Entropic)
-      Corpus.UpdateFeatureFrequency(II, Feature);
-    if (Options.ReduceInputs && II && !II->NeverReduce)
-      if (std::binary_search(II->UniqFeatureSet.begin(),
-                             II->UniqFeatureSet.end(), Feature))
-        FoundUniqFeaturesOfII++;
-  });
-  if (FoundUniqFeatures)
-    *FoundUniqFeatures = FoundUniqFeaturesOfII;
   PrintPulseAndReportSlowInput(Data, Size);
-  size_t NumNewFeatures = Corpus.NumFeatureUpdates() - NumUpdatesBefore;
-
-  TPC.UpdateObservedPCs();
-  auto NewII =
-          Corpus.AddToCorpus({Data, Data + Size}, NumNewFeatures, MayDeleteFile,
-                             TPC.ObservedFocusFunction(), ForceAddToCorpus,
-                             TimeOfUnit, UniqFeatureSetTmp, DFT, II);
-  WriteFeatureSetToFile(Options.FeaturesDir, Sha1ToString(NewII->Sha1),
-                        NewII->UniqFeatureSet);
-  WriteEdgeToMutationGraphFile(Options.MutationGraphFile, NewII, II,
-                               MD.MutationSequence());
-  return true;
+  return false;
 }
 
 void Fuzzer::TPCUpdateObservedPCs() { TPC.UpdateObservedPCs(); }
