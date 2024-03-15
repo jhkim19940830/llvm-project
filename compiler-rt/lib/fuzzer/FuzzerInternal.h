@@ -68,7 +68,7 @@ public:
   void ExecuteCallback(const uint8_t *Data, size_t Size);
   bool RunOne(const uint8_t *Data, size_t Size, bool MayDeleteFile = false,
               InputInfo *II = nullptr, bool ForceAddToCorpus = false,
-              bool *FoundUniqFeatures = nullptr);
+              bool *FoundUniqFeatures = nullptr, bool seed = false);
   void TPCUpdateObservedPCs();
 
   // Merge Corpora[1:] into Corpora[0].
